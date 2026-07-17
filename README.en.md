@@ -2,11 +2,23 @@
 
 [中文](README.md) | **English**
 
-DataHub is an integrated data access and data service platform for engineering, data, integration, and operations teams. It combines multi-source connection management, dataset modeling, Open API publishing, credential governance, data migration, configuration import/export, and desktop delivery in one workspace.
+DataHub is an integrated data access and data service platform for engineering, data, integration, and operations teams. It brings multi-source connection management, dataset modeling, Open API publishing, credential governance, data migration, relationship graphs, OCR recognition, and a developer toolbox together in one workspace. It works out of the box, supports one-command containerized deployment, and fits internal data service platforms, data middle-platform tooling, and enterprise data governance centers.
+
+## Why DataHub
+
+- **All-in-one data workspace** — 20+ data source types under one roof. No more switching between tools for databases, NoSQL, search engines, object storage, message brokers, and file transfer.
+- **Data to API in three steps** — Connect a source → Create a dataset → Publish an Open API. Built-in versioning, AK/SK credentials, rate limiting, and call logs — no need to build your own gateway.
+- **Zero-friction deployment** — One-command Docker deployment with an embedded H2 database. No external dependencies needed to get started; switch to PostgreSQL in production for better performance and reliability.
+- **Multi-theme & multi-tab workspace** — Light and dark theme support. Open multiple data sources in parallel tabs to boost productivity.
+- **Data lineage & relationship graphs** — Visual exploration of relationships between data sources with snap alignment, drag-and-drop nodes, and inline data preview.
+- **Enterprise data migration** — Cross-source migration with table mapping, field mapping, filters, table creation strategies, execution logs, and support for custom SQL and datasets as migration sources.
+- **Built-in developer toolbox** — HTTP debugger, JSON/XML formatter, Base64, QR code, Cron expression builder, URL encoder/decoder, and text diff — everyday tools at your fingertips.
+- **OCR text recognition** — Integrated OCR service for image text extraction, extending data collection capabilities.
+- **Multi-platform delivery** — Available as Docker container and desktop installers (macOS / Windows), covering server, intranet, and offline scenarios.
 
 ## Screenshots
 
-The screenshots are captured from a local environment with anonymized demo data.
+> The screenshots are captured from a local environment with anonymized demo data.
 
 | Data Source Management | Dataset Management |
 | --- | --- |
@@ -16,29 +28,33 @@ The screenshots are captured from a local environment with anonymized demo data.
 | --- | --- |
 | ![Open API Management](docs/images/datahub-openapi.png) | ![Toolbox](docs/images/datahub-toolbox.png) |
 
-## Product Positioning
+| System Settings | Data Migration |
+| --- | --- |
+| ![System Settings](docs/images/datahub-settings.png) | ![Data Migration](docs/images/datahub-migration.png) |
 
-DataHub is more than a database client. It is designed around the complete data service workflow: connect, model, publish, govern, and deliver.
+| Relationship Graph | OCR Service |
+| --- | --- |
+| ![Relationship Graph](docs/images/datahub-graph.png) | ![OCR Service](docs/images/datahub-ocr.png) |
 
-- **Connect**: manage relational databases, NoSQL stores, search engines, object storage, file transfer services, HTTP APIs, and message middleware through one model.
-- **Model**: turn raw sources into reusable datasets with SQL, ES DSL, Mongo Pipeline, variables, field mapping, caching, and query limits.
-- **Publish**: expose datasets as governed Open APIs with versions, documentation, credentials, white lists, rate limits, and logs.
-- **Operate**: support migration jobs, configuration transfer, runtime settings, and daily developer tools.
-- **Deliver**: run as a web application or package as a Tauri desktop client with local H2 storage.
+| Login | Dark Theme |
+| --- | --- |
+| ![Login](docs/images/datahub-login.png) | ![Dark Theme](docs/images/datahub-dark-theme.png) |
 
 ## Key Features
 
 | Area | Capabilities |
 | --- | --- |
-| Data Sources | Groups, connection tests, typed configuration, dedicated workbenches, import/export |
-| Data Browsing | Schema browsing, SQL execution, paginated queries, basic DDL/DML |
+| Data Sources | Groups, connection tests, typed configuration, dedicated workbenches, import/export, card/list views |
+| Data Browsing | Schema browsing, SQL editor, paginated queries, DDL/DML, data copy, table creation |
 | Import Sources | Excel, CSV, HTTP API preview, local mirroring, re-import, progress tracking |
-| Datasets | SQL / ES DSL / Mongo Pipeline, field mapping, variables, cache TTL |
-| Open APIs | API publishing, versioning, pagination, OpenAPI / Markdown / Postman / curl export |
+| Datasets | SQL / ES DSL / Mongo Pipeline, field mapping, variables, cache TTL, query limits |
+| Open APIs | Publishing, versioning, pagination, OpenAPI / Markdown / Postman / curl export |
 | Credentials | AK/SK, groups, expiration, IP whitelist, rate-limit override, statistics |
-| Migration | Jobs, table mapping, field mapping, filters, table creation strategy, logs |
+| Migration | Jobs, table mapping, field mapping, filters, table creation strategy, custom SQL source, monitoring |
+| Relationship Graphs | Data lineage visualization, snap alignment, drag-and-drop, data preview, graph scanning |
+| OCR | Image text recognition, multi-engine support, service configuration |
 | Toolbox | HTTP, JSON, XML, Base64, QR Code, Cron, URL, text diff |
-| Desktop | Tauri shell, bundled JRE, embedded H2, single-machine delivery |
+| System Settings | Global variables, cache strategy, query limits, graph scanning, OCR service, download preferences, feedback |
 
 ## Supported Sources
 
@@ -54,44 +70,96 @@ DataHub is more than a database client. It is designed around the complete data 
 
 File-based and HTTP-based sources are imported into a local mirror database first, then reused for queries, dataset modeling, and API publishing.
 
-## Typical Workflow
-
-```text
-Connect a data source
-    ↓
-Create a dataset
-    ↓
-Configure fields, variables, cache, and query rules
-    ↓
-Publish an Open API
-    ↓
-Issue AK/SK, export docs, and monitor call logs
-```
-
-The same workspace also supports cross-source migration, configuration import/export, HTTP debugging, and offline desktop delivery.
-
 ## Architecture
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
 │                         Admin UI                            │
-│        Vue 3 + TypeScript + Vite + Element Plus             │
-│                    Web / Tauri Desktop                      │
+│        Vue 3 + TypeScript + Element Plus                    │
+│            Web / Desktop Client / Docker                    │
 └────────────────────────────┬────────────────────────────────┘
                              │ REST / SSE / WebSocket
 ┌────────────────────────────▼────────────────────────────────┐
 │                    Spring Boot Service                      │
-│ Data Source | Dataset | API Publishing | Migration | Config  │
+│ Data Source | Dataset | API Publishing | Migration | Graph | OCR │
 └───────────────┬──────────────┬──────────────┬───────────────┘
                 │              │              │
         Metadata Store    File / HTTP Mirror   External Sources
-      PostgreSQL / H2       backend-data/       DB / ES / MQ / OSS
+      PostgreSQL / H2       Local Storage       DB / ES / MQ / OSS
 ```
 
+## Deployment
+
+### Docker (Recommended)
+
+The fastest way to get started — no dependencies required.
+
+**1. Create `docker-compose.yml`**
+
+```yaml
+services:
+  app:
+    image: data-collect:latest
+    ports:
+      - "${APP_PORT:-8123}:8123"
+    environment:
+      SPRING_PROFILES_ACTIVE: embedded
+      SERVER_PORT: 8123
+      SPRING_DATASOURCE_URL: jdbc:h2:file:/app/data/datasource;AUTO_SERVER=TRUE;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;INIT=CREATE SCHEMA IF NOT EXISTS PUBLIC\;CREATE DOMAIN IF NOT EXISTS JSONB AS JSON
+      APP_STORAGE_PATH: /app/backend-data
+      JAVA_OPTS: ${JAVA_OPTS:--Xms256m -Xmx512m}
+    volumes:
+      - h2-data:/app/data
+      - app-data:/app/backend-data
+    restart: unless-stopped
+
+volumes:
+  h2-data:
+  app-data:
+```
+
+**2. Start the service**
+
+```bash
+docker compose up -d
+```
+
+**3. Access the app**
+
+Open `http://localhost:8123` in your browser and register an account with your email.
+
+**4. Environment variables**
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `APP_PORT` | `8123` | Host port mapping |
+| `JAVA_OPTS` | `-Xms256m -Xmx512m` | JVM memory options |
+
+**5. Data persistence**
+
+Docker Compose creates two named volumes by default:
+
+- `h2-data` — Metadata database files (source configs, users, datasets, API settings, etc.)
+- `app-data` — File-based data source mirror storage (Excel, CSV, HTTP API imports)
+
+**6. Stop and clean up**
+
+```bash
+# Stop the service (keep data)
+docker compose down
+
+# Stop and remove volumes (delete all data)
+docker compose down -v
+```
+
+### Desktop Client
+
+Available as macOS (DMG) and Windows (MSI / EXE) installers with a bundled runtime — double-click to run. Ideal for offline and single-machine use.
+
+Register an account with your email on first launch.
 
 ## Notes
 
-- Some commercial database drivers may depend on enterprise artifact repositories or local Maven cache.
-- Server mode uses PostgreSQL, while desktop mode uses an H2 file database.
-- `backend/src/main/resources/static/` contains generated frontend assets and should not be maintained manually.
-- Download center and related capabilities depend on the Tauri runtime. Browser mode provides the core Web experience.
+- Register with your email on first use. Login supports both password and email verification code.
+- Docker mode uses an embedded H2 database by default. For production, switch to PostgreSQL for better concurrency performance.
+- The desktop client stores data locally using H2. Back up your data before uninstalling.
